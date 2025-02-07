@@ -5,38 +5,38 @@ using UnityEngine.SceneManagement;
 
 public class pauseMeniu : MonoBehaviour
 {
-    //public static bool GameisPaused = false;
+    //public static bool GameisPaused = false;  // Unused in this version, could be used for pause state
 
-    public GameObject secondary_canvas;
-    public GameObject primary_canvas;
+    public GameObject secondary_canvas; // Reference to the pause menu canvas
+    public GameObject primary_canvas; // Reference to the main level canvas
 
-
-
-    //functie pentru buton Resume
+    // Function for the Resume button
     public void Resume()
     {
-        secondary_canvas.SetActive(false); // se dezactiveaza meniul de pauza
-        primary_canvas.SetActive(true); // se activeaza canvasul principal din level
+        secondary_canvas.SetActive(false); // Deactivates the pause menu
+        primary_canvas.SetActive(true); // Activates the main level canvas, resuming gameplay
     }
 
-    //functie pentru butonul Menu
+    // Function for the Menu button
     public void LoadMenu()
     {
-        //PlayerPrefs.SetInt("lastLevel", 2 );
+        // Get the current level index and check if it's greater than or equal to the last saved level
         int lastLevel = SceneManager.GetActiveScene().buildIndex;
+
+        // If the current level index is greater than the last saved level, update it
         if (lastLevel >= PlayerPrefs.GetInt("lastLevel")) 
         {
             PlayerPrefs.SetInt("lastLevel", SceneManager.GetActiveScene().buildIndex-1);
         }
-        SceneManager.LoadScene("Menu"); // se incarca scena cu nivelul principal
 
+        // Load the "Menu" scene
+        SceneManager.LoadScene("Menu"); 
     }
 
-    //functie pentru buton Quit Game
+    // Function for the Quit Game button
     public void QuitGame()
     {
-        //Debug.Log("Quit Game");
-        Application.Quit(); // se inchide aplicatia
+        // Quit the application when the player clicks the quit button
+        Application.Quit(); 
     }
-
 }
