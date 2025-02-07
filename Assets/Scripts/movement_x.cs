@@ -5,61 +5,75 @@ using System.Numerics;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.EventSystems;
+// Alias Unity-specific Vector2 and Vector3 to avoid conflicts with System.Numerics
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 public class movement_x : MonoBehaviour
 {
-
+    // Audio source to play sounds during interaction
     public AudioSource audio;
+
+    // Initial and current positions for movement tracking
     private Vector2 initialPosition;
     private Vector2 mousePosition;
-    private bool locked;
-    float deltaX;
-    public GameObject Obstacle;
-    //limite pentru 2blocks
-    private float limita_stanga = -2f;
-    private float limita_dreapta = 2f;
 
-    //limita pentru 3blocks
-    private float limita_stanga2 = -1.5f;
-    private float limita_dreapta2 = 1.5f;
+    // Flag to lock movement
+    private bool locked;
+
+    // Offset between object and mouse position
+    float deltaX;
+
+    // Reference to the obstacle being moved
+    public GameObject Obstacle;
+
+    // Movement limits for objects with 2-block and 3-block sizes
+    private float limita_stanga = -2f;  // Left limit for 2-blocks
+    private float limita_dreapta = 2f;  // Right limit for 2-blocks
+    private float limita_stanga2 = -1.5f;    // Left limit for 3-blocks
+    private float limita_dreapta2 = 1.5f;    // Right limit for 3-blocks
 
     void Start()
     {
-        initialPosition = transform.position; // pozitia initiala a obiectului 
+        // Initialize the position of the object when the game starts
+        initialPosition = transform.position;
     }
 
     private void OnMouseDown()
     {
-        if (!locked) // daca nu e locked, am dat click pe el ceea ce inseamna ca vrem sa il mutam
+        if (!locked) // Only allow interaction if the object is not locked
         {
+            // Enable audio playback
             audio.mute = false;
             audio.Play();
+
+            // Calculate offset between the mouse and the object's position
             deltaX = Camera.main.ScreenToWorldPoint(Input.mousePosition).x - transform.position.x;
         }
-
     }
 
     private void OnMouseDrag()
     {
-        if (!locked)
+        if (!locked)    // Allow dragging only if the object is not locked
         {
-            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // optinem pozitia mouse-ului
-            float finalPosition_x = mousePosition.x - deltaX; // calcula pozitia finala pe x
+            // Get the mouse position in world coordinates
+            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            // Calculate the tentative final x-position
+            float finalPosition_x = mousePosition.x - deltaX;
 
-            if (Obstacle.CompareTag("Obstacle_2blocks_x")) //CONDITIE PENTRU 2BLOCKS
+            // Handle 2-block obstacle logic
+            if (Obstacle.CompareTag("Obstacle_2blocks_x")) 
             {
 
-                //CONDITIA SA NU IASA DIN GRID
-                if (finalPosition_x < -2.0f) // daca iese din grid in partea stanga 
-                    finalPosition_x = -2.0f; // ramane la capatul din stanga a gridului
-                else if (finalPosition_x > 2.0f) // daca iese din grid in partea dreapta
-                    finalPosition_x = 2.0f; // ramane la capatul din dreapta a gridului
+                //CONDITION TO STAY WITHIN GRID LIMITS
+                if (finalPosition_x < -2.0f)  // If the object moves beyond the left edge of the grid
+                    finalPosition_x = -2.0f; // Keep it at the left edge of the grid
+                else if (finalPosition_x > 2.0f) // If the object moves beyond the right edge of the grid
+                    finalPosition_x = 2.0f; // Keep it at the right edge of the grid
 
 
-                //instructiuni pentru pozitionarea fixa a obiectului in casutele grid-ului.
-                // pentru fiecare casuta in parte se verifica daca pozitionare este facuta mai aproape de marginea din dreapta sau stanga, iar obiectul se pozitioneaza corespunzator
+                // Instructions for snapping the object to grid cells.
+                // For each grid cell, it checks whether the position is closer to the right or left edge, and the object is positioned accordingly
                 if (finalPosition_x > -2.0f && finalPosition_x < -1.0f)
                 {
                     if (Math.Abs(-2.0f - finalPosition_x) < Math.Abs(-1.0f - finalPosition_x))
@@ -88,26 +102,22 @@ public class movement_x : MonoBehaviour
                     else
                         finalPosition_x = 2f;
                 }
-                // incheiere instructiuni pentru pozitionarea fixa a obiectului in casutele grid-ului
             }
-
-
-            else if (Obstacle.CompareTag("Obstacle_3blocks_x")) //  CONDITIE PENTRU 3BLOCKS
+            else if (Obstacle.CompareTag("Obstacle_3blocks_x")) // CONDITION FOR 3BLOCKS
             {
-                //CONDITIA SA NU IASA DIN GRID
-                if (finalPosition_x < -1.5f) // daca iese din grid in partea stanga
-                    finalPosition_x = -1.5f; // ramane la capatul din stanga a gridului
-                else if (finalPosition_x > 1.5f) // daca iese din grid in partea dreapta
-                    finalPosition_x = 1.5f; // ramane la capatul din dreapta a gridului
+                // CONDITION TO STAY WITHIN GRID LIMITS
+                if (finalPosition_x < -1.5f)     // If the object moves beyond the left edge of the grid
+                    finalPosition_x = -1.5f;    // Keep it at the left edge of the grid
+                else if (finalPosition_x > 1.5f)    // If the object moves beyond the right edge of the grid
+                    finalPosition_x = 1.5f;     // Keep it at the right edge of the grid
 
-                //instructiuni pentru pozitionarea fixa a obiectului in casutele grid-ului
+                // Instructions for snapping the object to grid cells
                 if (finalPosition_x > -1.5f && finalPosition_x < -0.5f)
                 {
                     if (Math.Abs(-1.5f - finalPosition_x) < Math.Abs(-0.5 - finalPosition_x))
                         finalPosition_x = -1.5f;
                     else
                         finalPosition_x = -0.5f;
-
                 }
                 else if (finalPosition_x > -0.5f && finalPosition_x < 0.5f)
                 {
@@ -123,212 +133,220 @@ public class movement_x : MonoBehaviour
                     else
                         finalPosition_x = 1.5f;
                 }
-                // incheiere instructiuni pentur pozitionare fixa a obiectului in casutele gridului
-
             }
 
-            //verificare daca un alt obiect se afla pe pozitia respectiva
-            // pentru obst cu 2 blocuri verificam toate celelalte obstacole, dar pentru cele 3 blocuri eliminam obstacolele cu 3 blocuri deoarece s-ar bloca pe linia respectiva
+            // Check if another object is at the same position
+            // For obstacles with 2 blocks, we check all other obstacles, but for those with 3 blocks, we exclude other 3-block obstacles to avoid blocking the same line
+            GameObject[] Obstacles_3blocks_y = GameObject.FindGameObjectsWithTag("Obstacle_3blocks_y"); // Find all obstacles with 3 blocks on the Y-axis
+            GameObject[] Obstacles_2blocks_y = GameObject.FindGameObjectsWithTag("Obstacle_2blocks_y"); // Find all obstacles with 2 blocks on the Y-axis
+            GameObject[] Obstacles_3blocks_x = GameObject.FindGameObjectsWithTag("Obstacle_3blocks_x");  // Find all obstacles with 3 blocks on the X-axis
+            GameObject[] Obstacles_2blocks_x = GameObject.FindGameObjectsWithTag("Obstacle_2blocks_x"); // Find all obstacles with 2 blocks on the X-axis
 
-            GameObject[] Obstacles_3blocks_y = GameObject.FindGameObjectsWithTag("Obstacle_3blocks_y");
-            GameObject[] Obstacles_2blocks_y = GameObject.FindGameObjectsWithTag("Obstacle_2blocks_y");
-            GameObject[] Obstacles_3blocks_x = GameObject.FindGameObjectsWithTag("Obstacle_3blocks_x");
-            GameObject[] Obstacles_2blocks_x = GameObject.FindGameObjectsWithTag("Obstacle_2blocks_x");
+            // Combine all Y-axis obstacles (both 2-block and 3-block) into a single array
+            GameObject[] Obstacles_y = Obstacles_3blocks_y.Concat(Obstacles_2blocks_y).ToArray();
+            // Combine all X-axis obstacles (both 2-block and 3-block) into a single array
+            GameObject[] Obstacles_x = Obstacles_3blocks_x.Concat(Obstacles_2blocks_x).ToArray();
 
-
-            GameObject[] Obstacles_y = Obstacles_3blocks_y.Concat(Obstacles_2blocks_y).ToArray(); //toate obstacolele pe y
-            GameObject[] Obstacles_x = Obstacles_3blocks_x.Concat(Obstacles_2blocks_x).ToArray(); // toate obstacolele pe x
-
-            //
-            GameObject[] Obstacles1 = Obstacles_x.Concat(Obstacles_y).ToArray(); // obstacolele pentru 2Blocks
-            GameObject[] Obstacles2 = Obstacles_y.Concat(Obstacles_2blocks_x).ToArray(); // obstacolele pentru 3Blocks. Nu pot exista alte obstacole 3blocks pe aceeasi linie pentru ca s-ar bloca linia respectiva
-
-
-            //pentru obstacolele pe x trebuie sa verificam separat
-
-
+            // Combine obstacles for 2-block configuration (on both axes)
+            GameObject[] Obstacles1 = Obstacles_x.Concat(Obstacles_y).ToArray();
+            // Combine all X-axis obstacles (both 2-block and 3-block) into a single array
+            GameObject[] Obstacles2 = Obstacles_y.Concat(Obstacles_2blocks_x).ToArray(); 
 
 
             if (Obstacle.CompareTag("Obstacle_2blocks_x"))
             {
-                //comparam sa vedem daca obstacolul pe y se afla in intervalul [initial_position.y -1 ; initial_position.y +1].
-                // daca da si acestea se afla la 0.5f de positioa finala pe x, atunci obstacolul pe carevrem sa il mutam poate sa  mearga doar la 1.5f de acesta, daca obnst e pe y
+                // Check if the obstacle on the Y-axis is within the range [initial_position.y - 1; initial_position.y + 1].
+                // If yes, and the obstacle is at a distance of 0.5f from the final X position, then the obstacle we want to move can only go to 1.5f away from it, if the obstacle is on the Y-axis.
 
-
-                //setam limite la stanga si dreapta
+                // Set the left and right boundaries for movement.
                 // it's ok! you got it!
-
 
                 foreach (GameObject obstacle in Obstacles1)
                 {
 
                     Vector2 pos_obst = obstacle.transform.position;
 
-                    if (obstacle.CompareTag("Obstacle_2blocks_y") || obstacle.CompareTag("Obstacle_3blocks_y")) // au acelasi pivot pe x
+                    // If the obstacle is along the Y-axis (either 2-block or 3-block), it shares the same X pivot.
+                    if (obstacle.CompareTag("Obstacle_2blocks_y") || obstacle.CompareTag("Obstacle_3blocks_y")) 
                     {
-                        if ((pos_obst.y >= initialPosition.y - 1) && (pos_obst.y <= initialPosition.y + 1)) // daca blocul se afla pe linia unde este si obstacolul pe care vrem sa-l deplasam
+                        // Check if the obstacle is within the vertical range of the object we want to move.
+                        if ((pos_obst.y >= initialPosition.y - 1) && (pos_obst.y <= initialPosition.y + 1))
                         {
+                            // Adjust the right boundary if the obstacle is further left.
                             if (limita_dreapta > (pos_obst.x - 1.5f) && initialPosition.x < pos_obst.x)
                                 limita_dreapta = pos_obst.x - 1.5f;
 
+                            // Adjust the left boundary if the obstacle is further right.
                             if (limita_stanga < (pos_obst.x + 1.5f) && initialPosition.x > pos_obst.x)
                                 limita_stanga = pos_obst.x + 1.5f;
 
+                            // If the obstacle is exactly 0.5f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == 0.5f)
                                 finalPosition_x = pos_obst.x - 1.5f;
 
+                            // If the obstacle is exactly -0.5f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == -0.5f)
                                 finalPosition_x = pos_obst.x + 1.5f;
                         }
                     }
 
+                    // If the obstacle is a 2-block obstacle along the X-axis
                     if (obstacle.CompareTag("Obstacle_2blocks_x"))
                     {
-                        if (pos_obst.y == initialPosition.y && pos_obst.x != initialPosition.x) // daca se afla pe linia obstacolului pe care vrem sa il mutam si nu e obstacolul curent
+                        // Check if the obstacle is on the same Y-line as the one we want to move, and it's not the same object.
+                        if (pos_obst.y == initialPosition.y && pos_obst.x != initialPosition.x)
                         {
+                            // Adjust the right boundary if the obstacle is further left
                             if (limita_dreapta > (pos_obst.x - 2f) && initialPosition.x < pos_obst.x)
                                 limita_dreapta = pos_obst.x - 2f;
 
+                            // Adjust the left boundary if the obstacle is further right.
                             if (limita_stanga < (pos_obst.x + 2f) && initialPosition.x > pos_obst.x)
                                 limita_stanga = pos_obst.x + 2f;
 
+                            // If the obstacle is exactly 1f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == 1f)
                                 finalPosition_x = pos_obst.x - 2f;
 
+                            // If the obstacle is exactly -1f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == -1f)
                                 finalPosition_x = pos_obst.x + 2f;
                         }
                     }
 
+                    // If the obstacle is a 3-block obstacle along the X-axis
                     if (obstacle.CompareTag("Obstacle_3blocks_x"))
                     {
-                        if (pos_obst.y == initialPosition.y) // daca se afla pe linia obstacolului pe care vrem sa il mutam
+                        // Check if the obstacle is on the same Y-line as the one we want to move.
+                        if (pos_obst.y == initialPosition.y)
                         {
+                            // Adjust the right boundary if the obstacle is further left.
                             if (limita_dreapta > (pos_obst.x - 2.5f) && initialPosition.x < pos_obst.x)
                                 limita_dreapta = pos_obst.x - 2.5f;
 
+                            // Adjust the left boundary if the obstacle is further right.
                             if (limita_stanga < (pos_obst.x + 2.5f) && initialPosition.x > pos_obst.x)
                                 limita_stanga = pos_obst.x + 2.5f;
 
+                            // If the obstacle is exactly 1.5f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == 1.5f)
                                 finalPosition_x = pos_obst.x - 2.5f;
 
+                            // If the obstacle is exactly -1.5f away on the X-axis, move the object accordingly.
                             if (pos_obst.x - finalPosition_x == -1.5f)
                                 finalPosition_x = pos_obst.x + 2.5f;
                         }
                     }
-
-
-
                 }
 
-
-
-
-                //daca pozitia la care vrem sa mergem este mai mare decat limita din dreapta, nu putem ajunge acolo pentru ca am sari peste obstacol
+                // If the desired final position is greater than the right limit, we cannot go there because the player would jump over the obstacle.
                 if (finalPosition_x > limita_dreapta)
                 {
-                    //setam pozitia finala la limita din dreapta
+                    // Set the final position to the right limit to prevent going past the obstacle.
                     finalPosition_x = limita_dreapta;
-                    // resetam limita, la punctul cel mai din stanga la care pivotul player-ului poate ajunge
+                    // Reset the right limit to the farthest point on the right the player can go (in this case, 2f).
                     limita_dreapta = 2f;
                 }
 
-                // daca pozitia la care vrem sa mergem este mai mica decat limita din stanga, nu putem ajunge acolo pentru ca am sari peste obstacol
+                // If the desired final position is smaller than the left limit, we cannot go there because the player would jump over the obstacle.
                 if (finalPosition_x < limita_stanga)
                 {
-                    //setal pozitia finala la limita din dreapta
+                    // Set the final position to the left limit to prevent going past the obstacle.
                     finalPosition_x = limita_stanga;
-                    // resetam limita, la punctul cel mai din stanga la care pivotul player-ului poate ajunge
+                    // Reset the left limit to the farthest point on the left the player can go (in this case, -2f).
+                    limita_stanga = -2f;
                     limita_stanga = -2f;
                 }
 
-                //actualizam pozitia player-ului
-                transform.position = new Vector2(finalPosition_x, initialPosition.y); // player-ul poate sa mearga doar pe x, deci y-ul ramane cel initial
-                                                                                      //pozitia initiala devine pozitia curenta
+                // Update the player's position to the new calculated X position, while keeping the Y position the same (since movement is only on the X-axis).
+                transform.position = new Vector2(finalPosition_x, initialPosition.y);
+                // Set the initial position to the current position for future movement calculations.
                 initialPosition = transform.position;
             }
 
-
-
-
             if (Obstacle.CompareTag("Obstacle_3blocks_x"))
             {
-
-
+                // Loop through all obstacles in the "Obstacles2" array, which includes obstacles of type 2-blocks_y and 3-blocks_y.
                 foreach (GameObject obstacle in Obstacles2)
                 {
-
+                    // Get the position of the current obstacle.
                     Vector2 pos_obst = obstacle.transform.position;
 
-                    if (obstacle.CompareTag("Obstacle_2blocks_y") || obstacle.CompareTag("Obstacle_3blocks_y")) // au acelasi pivot pe x
+                    // Check if the obstacle is a "2blocks_y" or "3blocks_y" (same pivot on the x-axis).
+                    if (obstacle.CompareTag("Obstacle_2blocks_y") || obstacle.CompareTag("Obstacle_3blocks_y")) 
                     {
-                        if ((pos_obst.y >= initialPosition.y - 1) && (pos_obst.y <= initialPosition.y + 1)) // daca blocul se afla pe linia unde este si obstacolul pe care vrem sa-l deplasam
+                        // Check if the obstacle is within the vertical range of -1 to +1 from the initial Y position.
+                        if ((pos_obst.y >= initialPosition.y - 1) && (pos_obst.y <= initialPosition.y + 1))
                         {
+                            // Adjust the right limit to ensure the player does not pass the obstacle on the right.
                             if (limita_dreapta2 > (pos_obst.x - 2f) && initialPosition.x < pos_obst.x)
                                 limita_dreapta2 = pos_obst.x - 2f;
 
+                            // Adjust the left limit to ensure the player does not pass the obstacle on the left.
                             if (limita_stanga2 < (pos_obst.x + 2f) && initialPosition.x > pos_obst.x)
                                 limita_stanga2 = pos_obst.x + 2f;
 
+                            // If the obstacle is 1 unit away from the final position, adjust the final position.
                             if (pos_obst.x - finalPosition_x == 1f)
                                 finalPosition_x = pos_obst.x - 2f;
 
+                            // If the obstacle is -1 unit away from the final position, adjust the final position.
                             if (pos_obst.x - finalPosition_x == -1f)
                                 finalPosition_x = pos_obst.x + 2f;
                         }
                     }
 
+                    // If the obstacle is a "2blocks_x" (same pivot on the y-axis).
                     if (obstacle.CompareTag("Obstacle_2blocks_x"))
                     {
+                        // Check if the obstacle is on the same horizontal line as the one the player is trying to move on.
                         if (pos_obst.y == initialPosition.y ) // daca se afla pe linia obstacolului pe care vrem sa il mutam
                         {
+                            // Adjust the right limit to ensure the player does not pass the obstacle on the right.
                             if (limita_dreapta2 > (pos_obst.x - 2.5f) && initialPosition.x < pos_obst.x)
                                 limita_dreapta2 = pos_obst.x - 2.5f;
 
+                            // Adjust the left limit to ensure the player does not pass the obstacle on the left.
                             if (limita_stanga2 < (pos_obst.x + 2.5f) && initialPosition.x > pos_obst.x)
                                 limita_stanga2 = pos_obst.x + 2.5f;
 
+                            // If the obstacle is 1.5 units away from the final position, adjust the final position.
                             if (pos_obst.x - finalPosition_x == 1.5f)
                                 finalPosition_x = pos_obst.x - 2.5f;
 
+                            // If the obstacle is -1.5 units away from the final position, adjust the final position.
                             if (pos_obst.x - finalPosition_x == -1.5f)
                                 finalPosition_x = pos_obst.x + 2.5f;
                         }
                     }
-
                 }
 
-
-                //daca pozitia la care vrem sa mergem este mai mare decat limita din dreapta, nu putem ajunge acolo pentru ca am sari peste obstacol
+                // If the target position is greater than the right limit, we cannot reach it as it would go past the obstacle.
                 if (finalPosition_x > limita_dreapta2)
                 {
-                    //setam pozitia finala la limita din dreapta
+                    // Set the final position to the right limit.
                     finalPosition_x = limita_dreapta2;
-                    // resetam limita, la punctul cel mai din stanga la care pivotul player-ului poate ajunge
+                    // Reset the right limit to the furthest point the player can reach to the right.
                     limita_dreapta2 = 1.5f;
                 }
 
-                // daca pozitia la care vrem sa mergem este mai mica decat limita din stanga, nu putem ajunge acolo pentru ca am sari peste obstacol
+                // If the target position is less than the left limit, we cannot reach it as it would go past the obstacle.
                 if (finalPosition_x < limita_stanga2)
                 {
-                    //setal pozitia finala la limita din dreapta
+                    // Set the final position to the left limit.
                     finalPosition_x = limita_stanga2;
-                    // resetam limita, la punctul cel mai din stanga la care pivotul player-ului poate ajunge
+                    // Reset the left limit to the furthest point the player can reach to the left.
                     limita_stanga2 = -1.5f;
                 }
 
-                //actualizam pozitia player-ului
-                transform.position = new Vector2(finalPosition_x, initialPosition.y); // player-ul poate sa mearga doar pe x, deci y-ul ramane cel initial
-                                                                                      //pozitia initiala devine pozitia curenta
+                // Update the player's position based on the calculated final position.
+                // The player can only move on the x-axis, so the y-coordinate remains the same as the initial y-position.
+                transform.position = new Vector2(finalPosition_x, initialPosition.y);
+
+                // Update the initial position to the current position after the move.
                 initialPosition = transform.position;
-
-
-
             }
         }
-
-
     }
 }
 

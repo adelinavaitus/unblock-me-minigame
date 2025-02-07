@@ -7,6 +7,7 @@ using TMPro;
 
 public class Levels : MonoBehaviour
 {
+    // Buttons for each level with different states (yellow - current level, green - passed level, red - locked level)
     public Button button1_yellow;
     public Button button1_green;
 
@@ -46,27 +47,25 @@ public class Levels : MonoBehaviour
     public Button button10_yellow;
     public Button button10_green;
 
+    // Panel for messages or alerts
     public GameObject panel;
+
+    // Text to display the level text
     public TextMeshProUGUI levelText;
-
-
-
 
     public void Start()
     {
-        // if (levelText.color == Color.green)
+        // Initialize level text with the value of "lastLevel" from PlayerPrefs
         levelText.text = PlayerPrefs.GetInt("lastLevel").ToString();
-        //else
-        // levelText.text = "Salut";
     }
-
-
 
      public void Update()
      {
+        // Logic to update button visibility and states based on "lastLevel" value
 
         if (PlayerPrefs.GetInt("lastLevel") < 2)
         {
+            // Initial setup: Show level 1 as yellow and all others as red
             button1_yellow.gameObject.SetActive(true);
             button2_red.gameObject.SetActive(true);
             button3_red.gameObject.SetActive(true);
@@ -102,6 +101,7 @@ public class Levels : MonoBehaviour
 
         else if (PlayerPrefs.GetInt("lastLevel") == 2)
         {
+            // Update for level 2 reached
             button1_yellow.gameObject.SetActive(false);
             button1_green.gameObject.SetActive(true);
 
@@ -141,7 +141,6 @@ public class Levels : MonoBehaviour
             button10_yellow.gameObject.SetActive(false);
             button10_green.gameObject.SetActive(false);
         }
-
 
         else if (PlayerPrefs.GetInt("lastLevel") == 3)
         {
@@ -225,8 +224,8 @@ public class Levels : MonoBehaviour
             button10_red.gameObject.SetActive(true);
             button10_yellow.gameObject.SetActive(false);
             button10_green.gameObject.SetActive(false);
-
         }
+
         else if (PlayerPrefs.GetInt("lastLevel") == 5)
         {
             button1_yellow.gameObject.SetActive(false);
@@ -477,158 +476,14 @@ public class Levels : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-    /* 
-     public void Button1 ()
-     {
-         SceneManager.LoadScene(2);
-     }
-
-     public void Button2()
-     {
-         Color buttonColor;
-         buttonColor = button1.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(3);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-
-
-     public void Button3()
-     {
-         Color buttonColor;
-         buttonColor = button2.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(4);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button4()
-     {
-         Color buttonColor;
-         buttonColor = button3.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(5);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button5()
-     {
-         Color buttonColor;
-         buttonColor = button4.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(6);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button6()
-     {
-         Color buttonColor;
-         buttonColor = button5.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(7);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button7()
-     {
-         Color buttonColor;
-         buttonColor = button6.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(8);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button8()
-     {
-         Color buttonColor;
-         buttonColor = button7.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(9);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button9()
-     {
-         Color buttonColor;
-         buttonColor = button8.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(10);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-     public void Button10()
-     {
-         Color buttonColor;
-         buttonColor = button9.GetComponent<Image>().color;
-
-         if (buttonColor.Equals(Color.green))
-         {
-             SceneManager.LoadScene(11);
-         }
-         else
-         {
-             panel.gameObject.SetActive(true);
-         }
-     }
-
-
-     */
-
-
+    // Button handlers for "green" buttons to load corresponding scenes
     public void bt1_green()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(2); // Load scene for level 1
     }
     public void bt2_green()
     {
-        SceneManager.LoadScene(3);
+        SceneManager.LoadScene(3); // Load scene for level 2
     }
     public void bt3_green()
     {
@@ -663,9 +518,7 @@ public class Levels : MonoBehaviour
         SceneManager.LoadScene(11);
     }
 
-
-
-
+    // Button handlers for "yellow" buttons to load corresponding scenes
     public void bt1_yellow()
     {
         SceneManager.LoadScene(2);
@@ -707,9 +560,7 @@ public class Levels : MonoBehaviour
         SceneManager.LoadScene(11);
     }
 
-
-
-
+    // Button handlers for "red" buttons to activate a panel
     public void bt1_red()
     {
         panel.gameObject.SetActive(true);
@@ -756,3 +607,4 @@ public class Levels : MonoBehaviour
         panel.gameObject.SetActive(true);
     }
 }
+
